@@ -1,0 +1,8 @@
+# Get the daily board and valid words
+GET http://localhost:3000/scrabble-setup
+Content-Type: application/json
+
+
+
+
+

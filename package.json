@@ -1,0 +1,31 @@
+{
+  "name": "api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "gb": "node utils/generateBoard.js",
+    "wl": "node utils/wordList.js",
+    "vw": "node utils/validWords.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "fs": "^0.0.1-security",
+    "mongoose": "^8.12.1",
+    "path": "^0.12.7",
+    "random-seed": "^0.3.0",
+    "word-finder": "^1.0.3",
+    "word-list-json": "^0.2.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}
