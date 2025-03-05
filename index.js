@@ -5,8 +5,11 @@ const cors = require('cors');
 const Puzzle = require('./models/Puzzle'); // Import Mongoose model
 const { config } = require('dotenv');
 
+const PORT = process.env.PORT || 3000;
+const HOST = '0.0.0.0'; // Listen on all network interfaces
+
 const app = express();
-const PORT = 3000;
+
 
 app.use(cors());
 app.use(express.json());
@@ -61,6 +64,6 @@ app.get('/scrabble-setup', async (req, res) => {
 });
 
 // **Start the server**
-app.listen(PORT, () => {
-    console.log(`🚀 Server running on http://localhost:${PORT}`);
-});
+app.listen(PORT, HOST, () => {
+    console.log(`Server running on http://${HOST}:${PORT}`);
+  });
