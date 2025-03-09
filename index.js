@@ -4,6 +4,8 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const Puzzle = require('./models/Puzzle'); // Import Mongoose model
 const { config } = require('dotenv');
+const path = require('path');
+const fs = require('fs');
 
 const PORT = process.env.PORT || 3000;
 const HOST = '0.0.0.0'; // Listen on all network interfaces
@@ -61,6 +63,20 @@ app.get('/scrabble-setup', async (req, res) => {
       console.error('Failed to fetch Scrabble puzzle:', error);
       res.status(500).json({ error: 'Internal server error' });
   }
+});
+
+// ✅ Route to serve words.json
+app.get('/api/words', (req, res) => {
+  const filePath = path.join(__dirname, 'data', 'words.json');
+
+  // Read file and send response
+  fs.readFile(filePath, 'utf8', (err, data) => {
+      if (err) {
+          console.error('❌ Error reading words.json:', err);
+          return res.status(500).json({ error: 'Failed to load word list' });
+      }
+      res.json(JSON.parse(data));
+  });
 });
 
 // **Start the server**

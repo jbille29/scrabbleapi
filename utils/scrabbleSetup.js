@@ -7,12 +7,11 @@ const scrabbleLetters = {
 };
 
 // Define constants for the Scrabble setup
-const numberOfPoolLetters = 3;
+const numberOfPoolLetters = 10;
 const numberOfPreplaced = 3;
 const numberOfFeatures = 5;
 const boardWidth = 5; 
 const boardSize = boardWidth * boardWidth;
-const starterWord = 'ho';
 
 // DEV NOTE: 
 // Algo is set up to grab next one, so if we want to balance featureTypes
@@ -154,10 +153,10 @@ function placeFeatureTiles(featureCount, boardSize, occupiedPositions) {
   board.forEach(row => console.log(row.join('|')));
 }
 
-async function generateScrabbleSetup() {
+async function generateScrabbleSetup(starterWord) {
   // Example usage:
   const poolLetters = drawLetters(numberOfPoolLetters, starterWord);
-  const validWords = await findAllValidWords(starterWord, poolLetters);;
+  //const validWords = await findAllValidWords(starterWord, poolLetters, boardWidth);
 
   const positions = placeStarterWord(starterWord, boardWidth);
 
@@ -170,20 +169,17 @@ async function generateScrabbleSetup() {
   // Formatting starterWord for frontend
   const starterWordObj = starterWord.split('').map((letter, index) => ({
     id: index + 1,  // Starting IDs from 1 for pre-placed letters
-    letter: letter,
+    letter: letter.toUpperCase(),
     position: positions[index],
     isPrePlaced: true
   }));
-
-  console.log("Starter Word on Board:", starterWordObj);
-  console.log("Remaining Letters:", letterPool);
   
   return {
     letterPool,
     starterWordObj,
     //prePlacedTiles,
     //featureSquares,
-    validWords
+    //validWords
   };
   
 }

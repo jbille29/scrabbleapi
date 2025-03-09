@@ -10,19 +10,24 @@ mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log("✅ Connected to MongoDB"))
   .catch(err => console.error("❌ MongoDB Connection Error:", err));
 
+const starterWords = [
+    "sun", "mist", "flame", "brim", "clap", 
+    "grit", "vault", "spine", "drum", "quill",
+    "shade", "charm", "pluck", "brisk", "frost", 
+    "creek", "swift", "gleam", "flint", "zap"
+];
 // Function to seed puzzles
 const seedPuzzles = async (startDate, numDays) => {
     let currentDate = new Date(startDate);
 
     for (let i = 0; i < numDays; i++) {
         try {
-            const puzzleData = await generateScrabbleSetup();
+            const puzzleData = await generateScrabbleSetup(starterWords[1]);
 
             const newPuzzle = new Puzzle({
                 date: new Date(currentDate), // Store date in UTC
                 letterPool: puzzleData.letterPool,
-                starterWordObj: puzzleData.starterWordObj,
-                validWords: puzzleData.validWords
+                starterWordObj: puzzleData.starterWordObj
             });
 
             await newPuzzle.save();
@@ -49,3 +54,4 @@ if (args.length !== 2) {
 
 const [startDate, numDays] = args;
 seedPuzzles(startDate, parseInt(numDays, 10));
+// node seedPuzzles.js 2025-03-09 10

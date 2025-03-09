@@ -1,4 +1,7 @@
+// Import a JSON file containing valid words (word-list-json is an external dependency)
 const wordList = require('word-list-json');
+
+// Convert the word list into a Set for quick lookup (case-insensitive)
 const wordSet = new Set(wordList.map(word => word.toUpperCase()));
 
 function removeDuplicates(words) {
@@ -27,14 +30,15 @@ function generatePermutations(letters) {
   return results;
 }
 
-function generateAllSubsetPermutations(letters) {
+function generateAllSubsetPermutations(letters, boardWidth) {
   let allPermutations = [];
 
-  for (let i = 2; i <= letters.length; i++) {
+  for (let i = 2; i <= Math.min(boardWidth, letters.length); i++) {
     const combinations = getCombinations(letters, i);
     combinations.forEach(combination => {
       const perms = generatePermutations(combination);
-      allPermutations = allPermutations.concat(perms);
+      // Store only unique words in the Set
+      perms.forEach(word => allPermutations.add(word));
     });
   }
 
@@ -65,13 +69,17 @@ function isValidWord(word) {
   return valid;
 }
 
-async function findAllValidWords(starterWord, letterPool) {
+async function findAllValidWords(starterWord, letterPool, boardWidth) {
   
   let combinedLetters = [...letterPool, ...starterWord.toUpperCase().split('')];
   console.log('All letters combined:', combinedLetters.join(', '));
 
-  const allSubsetPermutations = generateAllSubsetPermutations(combinedLetters);
+  // 10 letters = 10 min
+  // 15 letters = 20 min
+  const allSubsetPermutations = generateAllSubsetPermutations(combinedLetters, boardWidth);
  
+  // 10 letters = 10 min
+  // 15 letters = 20 min
   let validWords = allSubsetPermutations.filter(permutation => isValidWord(permutation));
   console.log('Total permutations to check:', allSubsetPermutations.length);
   
