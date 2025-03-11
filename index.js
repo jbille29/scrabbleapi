@@ -27,17 +27,18 @@ mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
  */
 const getDailyPuzzle = async (clientDate) => {
     // Convert the client's local date to UTC
-    const userDate = new Date(clientDate); // Use the client's date
-    const todayUTC = new Date(Date.UTC(userDate.getUTCFullYear(), userDate.getUTCMonth(), userDate.getUTCDate()));
-
-    console.log("📅 Fetching puzzle for (Client's Date in UTC):", todayUTC.toISOString());
+    const queryDate = new Date(`${clientDate}T00:00:00.000Z`); // ✅ Forces midnight UTC
+    console.log("📅 Fetching puzzle for (Client's Date in UTC):", queryDate.toISOString());
 
 
     try {
-        const puzzle = await Puzzle.findOne({ date: todayUTC });
+        // Query MongoDB ignoring time part
+        const puzzle = await Puzzle.findOne({
+          date: { $gte: queryDate, $lt: new Date(queryDate.getTime() + 86400000) } // ✅ Look for date range
+        });
 
         if (!puzzle) {
-          console.log("⚠️ No puzzle found for:", todayUTC.toISOString());
+          console.log("⚠️ No puzzle found for:", queryDate.toISOString());
           return null;
         }
 
