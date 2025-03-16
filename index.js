@@ -2,85 +2,92 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const Puzzle = require('./models/Puzzle'); // Import Mongoose model
-const { config } = require('dotenv');
-const path = require('path');
+const helmet = require('helmet'); // ✅ Security Middleware
+const rateLimit = require('express-rate-limit'); // ✅ Prevent Abuse
 const fs = require('fs');
+const path = require('path');
+const { ObjectId } = require('mongodb');
+const Puzzle = require('./models/Puzzle');
 
 const PORT = process.env.PORT || 3000;
-const HOST = '0.0.0.0'; // Listen on all network interfaces
+const HOST = '0.0.0.0';
+const MONGO_URI = process.env.MONGO_URI;
 
 const app = express();
 
-
-app.use(cors());
+// ✅ Middleware Setup
+app.use(cors({ origin: process.env.FRONTEND_URL })); // Restrict to frontend
 app.use(express.json());
+app.use(helmet()); // Secure Headers
+app.use(rateLimit({ windowMs: 1 * 60 * 1000, max: 100 })); // 100 requests per min
 
-// MongoDB connection
-const MONGO_URI = process.env.MONGO_URI;
+// ✅ Connect to MongoDB
 mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => console.log("✅ Connected to MongoDB"))
+  .then(() => console.log("✅ MongoDB Connected"))
   .catch(err => console.error("❌ MongoDB Connection Error:", err));
 
-/**
- * Fetch the daily puzzle from MongoDB
- */
+// ✅ Fetch Daily Puzzle
 const getDailyPuzzle = async (clientDate) => {
-    // Convert the client's local date to UTC
-    const queryDate = new Date(`${clientDate}T00:00:00.000Z`); // ✅ Forces midnight UTC
-    console.log("📅 Fetching puzzle for (Client's Date in UTC):", queryDate.toISOString());
+  const queryDate = new Date(`${clientDate}T00:00:00.000Z`);
+  console.log("📅 Fetching puzzle for:", queryDate.toISOString());
 
+  try {
+    const puzzle = await Puzzle.findOne({ 
+      date: { $gte: queryDate, $lt: new Date(queryDate.getTime() + 86400000) } 
+    });
 
-    try {
-        // Query MongoDB ignoring time part
-        const puzzle = await Puzzle.findOne({
-          date: { $gte: queryDate, $lt: new Date(queryDate.getTime() + 86400000) } // ✅ Look for date range
-        });
-
-        if (!puzzle) {
-          console.log("⚠️ No puzzle found for:", queryDate.toISOString());
-          return null;
-        }
-
-        return puzzle;
-    } catch (error) {
-        console.error("❌ Error fetching daily puzzle:", error);
-        return null;
-    }
+    return puzzle || null;
+  } catch (error) {
+    console.error("❌ Error fetching daily puzzle:", error);
+    return null;
+  }
 };
 
-// Update the API to accept a date parameter
+// ✅ Fake Puzzle for Testing
+const getFakeDailyPuzzle = () => ({
+  _id: new ObjectId(),
+  date: new Date(),
+  letterPool: Array.from("AUMENTOLTJ").map((letter, i) => ({
+    id: i + 6,
+    letter,
+    isPrePlaced: false,
+    _id: new ObjectId()
+  })),
+  starterWordObj: Array.from("CAME").map((letter, i) => ({
+    id: i + 1,
+    letter,
+    position: (i + 1) * 5,
+    isPrePlaced: true,
+    _id: new ObjectId()
+  })),
+  maxScore: 50,
+  __v: 0,
+});
+
+// ✅ Route: Fetch Puzzle (Real or Fake)
 app.get('/scrabble-setup', async (req, res) => {
   try {
-      const clientDate = req.query.date || new Date().toISOString().split("T")[0]; // Default to today
-      const setup = await getDailyPuzzle(clientDate);
+    console.time("⏳ Fetching puzzle");
+    const clientDate = req.query.date || new Date().toISOString().split("T")[0];
+    const setup = await getDailyPuzzle(clientDate) || getFakeDailyPuzzle();
+    console.timeEnd("⏳ Fetching puzzle");
+    
+    if (!setup) return res.status(404).json({ error: 'Puzzle not found' });
 
-      if (!setup) {
-          return res.status(404).json({ error: 'Puzzle not found for this date' });
-      }
-
-      res.json(setup);
+    res.json(setup);
   } catch (error) {
-      console.error('Failed to fetch Scrabble puzzle:', error);
-      res.status(500).json({ error: 'Internal server error' });
+    console.error('❌ Failed to fetch puzzle:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 
-// ✅ Route to serve words.json
+// ✅ Route: Serve Word List
 app.get('/api/words', (req, res) => {
-  const filePath = path.join(__dirname, 'data', 'words.json');
-
-  // Read file and send response
-  fs.readFile(filePath, 'utf8', (err, data) => {
-      if (err) {
-          console.error('❌ Error reading words.json:', err);
-          return res.status(500).json({ error: 'Failed to load word list' });
-      }
-      res.json(JSON.parse(data));
+  fs.readFile(path.join(__dirname, 'data', 'clean_words.json'), 'utf8', (err, data) => {
+    if (err) return res.status(500).json({ error: 'Failed to load word list' });
+    res.json(JSON.parse(data));
   });
 });
 
-// **Start the server**
-app.listen(PORT, HOST, () => {
-    console.log(`Server running on http://${HOST}:${PORT}`);
-  });
+// ✅ Start Server
+app.listen(PORT, HOST, () => console.log(`🚀 Server running on http://${HOST}:${PORT}`));

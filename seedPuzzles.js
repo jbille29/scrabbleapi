@@ -27,7 +27,8 @@ const seedPuzzles = async (startDate, numDays) => {
             const newPuzzle = new Puzzle({
                 date: new Date(currentDate), // Store date in UTC
                 letterPool: puzzleData.letterPool,
-                starterWordObj: puzzleData.starterWordObj
+                starterWordObj: puzzleData.starterWordObj,
+                maxScore: puzzleData.maxScore
             });
 
             await newPuzzle.save();

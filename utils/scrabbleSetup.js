@@ -177,6 +177,7 @@ async function generateScrabbleSetup(starterWord) {
   return {
     letterPool,
     starterWordObj,
+    maxScore: 50
     //prePlacedTiles,
     //featureSquares,
     //validWords
