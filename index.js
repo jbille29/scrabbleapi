@@ -16,7 +16,8 @@ const MONGO_URI = process.env.MONGO_URI;
 const app = express();
 
 // ✅ Middleware Setup
-app.use(cors({ origin: process.env.FRONTEND_URL })); // Restrict to frontend
+//app.use(cors({ origin: process.env.FRONTEND_URL })); // Restrict to frontend
+app.use(cors()); // Allow all origins
 app.use(express.json());
 app.use(helmet()); // Secure Headers
 app.use(rateLimit({ windowMs: 1 * 60 * 1000, max: 100 })); // 100 requests per min
@@ -71,7 +72,7 @@ app.get('/scrabble-setup', async (req, res) => {
     const clientDate = req.query.date || new Date().toISOString().split("T")[0];
     const setup = await getDailyPuzzle(clientDate) || getFakeDailyPuzzle();
     console.timeEnd("⏳ Fetching puzzle");
-    
+
     if (!setup) return res.status(404).json({ error: 'Puzzle not found' });
 
     res.json(setup);
