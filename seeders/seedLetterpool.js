@@ -1,7 +1,7 @@
 //require('dotenv').config();
 const mongoose = require('mongoose');
-const { generateScrabbleSetup } = require('./utils/scrabbleSetup'); // Import your puzzle generator function
-const Puzzle = require('./models/Puzzle'); // Your Mongoose model
+const { generateScrabbleSetup } = require('../utils/letterpoolUtils/scrabbleSetup'); // Import your puzzle generator function
+const Puzzle = require('../models/LetterpoolModels/LetterpoolPuzzles'); // Your Mongoose model
 
 // MongoDB connection
 const MONGO_URI = process.env.MONGO_URI || 'mongodb+srv://jbille29:192917aW$@cluster0.xbxegqm.mongodb.net/';
@@ -16,13 +16,14 @@ const starterWords = [
     "shade", "charm", "pluck", "brisk", "frost", 
     "creek", "swift", "gleam", "flint", "zap"
 ];
+
 // Function to seed puzzles
 const seedPuzzles = async (startDate, numDays) => {
     let currentDate = new Date(startDate);
 
     for (let i = 0; i < numDays; i++) {
         try {
-            const puzzleData = await generateScrabbleSetup(starterWords[1]);
+            const puzzleData = await generateScrabbleSetup(starterWords[i]);
 
             const newPuzzle = new Puzzle({
                 date: new Date(currentDate), // Store date in UTC
@@ -55,4 +56,4 @@ if (args.length !== 2) {
 
 const [startDate, numDays] = args;
 seedPuzzles(startDate, parseInt(numDays, 10));
-// node seedPuzzles.js 2025-03-09 10
+// node seedLetterpool.js 2025-03-09 10

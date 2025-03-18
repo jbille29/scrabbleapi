@@ -1,8 +1,8 @@
-# Get the daily board and valid words
+# LETTERPOOL
 GET http://localhost:3000/scrabble-setup
 Content-Type: application/json
 
-###
+### LETTERPOOL 
 GET https://scrabbleapi.onrender.com/scrabble-setup
 
 
