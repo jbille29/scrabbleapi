@@ -1,8 +1,13 @@
-# LETTERPOOL
-GET http://localhost:3000/scrabble-setup
+# LETTERPOOL LOCAL
+GET http://localhost:3000/api/letterpool/daily
 Content-Type: application/json
 
-### LETTERPOOL 
-GET https://scrabbleapi.onrender.com/scrabble-setup
+### 
+GET http://localhost:3000/api/letterpool/words
+Content-Type: application/json
+
+
+### LETTERPOOL DEPLOYED
+GET https://scrabbleapi.onrender.com/api/letterpool/daily
 
 

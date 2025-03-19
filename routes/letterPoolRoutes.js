@@ -1,4 +1,6 @@
 const express = require('express');
+const fs = require('fs');  // ✅ Add this
+const path = require('path');  // ✅ Add this
 
 const { getDailyPuzzle } = require('../controllers/letterPoolController');
 

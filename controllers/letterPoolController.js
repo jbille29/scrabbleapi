@@ -3,6 +3,7 @@ const Puzzle = require('../models/LetterpoolModels/LetterpoolPuzzles');
 exports.getDailyPuzzle = async (req, res) => {
   try {
     const clientDate = req.query.date || new Date().toISOString().split("T")[0];
+    console.log(new Date().toISOString().split("T")[0])
     const queryDate = new Date(`${clientDate}T00:00:00.000Z`);
     
     const puzzle = await Puzzle.findOne({
