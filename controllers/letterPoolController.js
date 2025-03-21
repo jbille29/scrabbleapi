@@ -3,15 +3,14 @@ const Puzzle = require('../models/LetterpoolModels/LetterpoolPuzzles');
 exports.getDailyPuzzle = async (req, res) => {
   try {
     const clientDate = req.query.date || new Date().toISOString().split("T")[0];
-    console.log(new Date().toISOString().split("T")[0])
+    console.log('new date: ', new Date().toISOString().split("T")[0])
     const queryDate = new Date(`${clientDate}T00:00:00.000Z`);
-    
+    console.log('query date: ', queryDate)
     const puzzle = await Puzzle.findOne({
       date: { $gte: queryDate, $lt: new Date(queryDate.getTime() + 86400000) }
     });
 
     if (!puzzle) return res.status(404).json({ error: 'Puzzle not found' });
-
     res.json(puzzle);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch puzzle' });
